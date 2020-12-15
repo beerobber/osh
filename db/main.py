@@ -19,7 +19,7 @@ columns = ['ceNumber',
            ]
 
 # Parse CSV
-osh_data = pd.read_csv(r'OSH100.csv',
+osh_data = pd.read_csv(r'raw/OSH100.csv',
                        header=0,
                        names=columns,
                        usecols=columns,
@@ -27,7 +27,7 @@ osh_data = pd.read_csv(r'OSH100.csv',
 
 # Save entire index as JSON
 json_buf = osh_data.to_json(orient="records")
-f = open("fullIndex.json", "w")
+f = open("full/fullIndex.json", "w")
 f.write(json_buf)
 f.close()
 
@@ -40,12 +40,6 @@ def generate_index(columns, file_name):
     # Create a subset of data specified by column list
     index_df = pd.DataFrame(osh_data, columns=columns)
     json_buf = index_df.to_json(orient="records")
-    index = json.loads(json_buf)
-
-    # Write preprocessed index
-    # f = open("pre/" + file_name, "w")
-    # f.write(json.dumps(index))
-    # f.close()
 
     # Spawn subprocess to invoke Lunr via Node, create and serialize Lunr index
     p = Popen(["node", "build-lunr-index.js", columns[0]], stdout=PIPE, stdin=PIPE, stderr=PIPE)
@@ -66,10 +60,6 @@ generate_index(columns=[
     'title',
     'ceNumber'
     ], file_name="titleIndex.json")
-
-# print("Min hymn number", title_index_df['ceNumber'].min())
-# print("Max hymn number", title_index_df['ceNumber'].max())
-# print(title_index_df.head())
 
 # First line of body index
 generate_index(columns=[
