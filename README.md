@@ -3,8 +3,8 @@ First approach to test Lunr will be to build multiple, small, targeted indexes
 rather than one index like ElasticSearch used.
 
 * `titleIndex.json`: `ceNumber`,  `title`
-* `flBodyIndex.json`: `ceNumber`, `lyricsFirstLineBody`
-* `flChorusIndex.json`: `ceNumber`, `lyricsFirstLineChorus`
+* `firstLineBodyIndex.json`: `ceNumber`, `lyricsFirstLineBody`
+* `firstLineChorusIndex.json`: `ceNumber`, `lyricsFirstLineChorus`
 * `lyricsIndex.json`: `ceNumber`, `lyricsFull` (future)
 
 These can be searched separately, and results grouped, sorted, and combined.

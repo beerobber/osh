@@ -3,6 +3,10 @@ var lunr = require('lunr'),
     stdout = process.stdout,
     buffer = []
 
+// Name of the single field to be indexed (along with the hymn number)
+// (Could upgrade this script to handle multiple fields if needed later)
+var field = process.argv[2]
+
 stdin.resume()
 stdin.setEncoding('utf8')
 
@@ -15,7 +19,8 @@ stdin.on('end', function () {
 
   var idx = lunr(function () {
     this.ref('ceNumber')
-    this.field('title')
+    // Future enhancement: loop through all fields passed
+    this.field(field)
 
     documents.forEach(function (doc) {
       this.add(doc)
