@@ -1,17 +1,18 @@
-// TODO: recreate ElasticSearch POC using Luna.js index
+// TODO: recreate ElasticSearch POC using Lunr.js index
 // Iteration 1: complete
 //      Title index only: deserialize index and run a search against it, no input
 // Iteration 2: complete
 //      Repeat pattern to load first line body and chorus indexes
 // Iteration 3: complete 12/15 8:15pm
 //      Bring in Webflow search HTML and adapt ElasticSearch POC to Lunr, returning hits w/o lookup
-// Iteration 4:
+// Iteration 4: complete 12/15 9:10pm
 //      Look up Lunr hit references in full JSON index and format as HTML search results
 
 var searchdiv = $("#osh-search-div")
 var lunrTitleIndex;
 var lunrFirstLineBodyIndex;
 var lunrFirstLineChorusIndex;
+var fullIndex;
 
 function fetchIndexData(url, callback){
     var obj;
@@ -24,6 +25,7 @@ function fetchIndexData(url, callback){
 fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
 fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
 fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
+fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/full/fullIndex.json', loadFullIndex);
 
 function loadTitleIndex(arrOfObjs){
     lunrTitleIndex = lunr.Index.load(arrOfObjs);
@@ -35,6 +37,10 @@ function loadFirstLineBodyIndex(arrOfObjs){
 
 function loadFirstLineChorusIndex(arrOfObjs){
     lunrFirstLineChorusIndex = lunr.Index.load(arrOfObjs);
+}
+
+function loadFullIndex(arrOfObjs){
+    fullIndex = arrOfObjs;
 }
 
 function generateSearchUI(){
@@ -93,13 +99,21 @@ async function search() {
             // });
             // Iterate through the results and write them to HTML
             resultsdiv.append('<p>Found ' + searchArray.length + '.</p>');
-            var results = "";
+            var results = "<div class=\"result\">";
             searchArray.forEach( (x) => {
-                results += "<div><ul>";
-                Object.keys(x).forEach( (p) => {
-                    results += "<li>" + (p + ": " + x[p]) + "</li>";
+                // Look up title
+                let i = fullIndex.findIndex((hymn) => {
+                    return hymn.ceNumber == x.ref;
                 });
-                results += "</ul>";
+
+                // Format results
+                results += "<div><h3><a href=\"/hymn?number=\"" + x.ref + "\">";
+                results += x.ref + " &mdash; " + fullIndex[i].title  + "</a></h3>";
+                results += "<p>" + fullIndex[i].lyricsFirstLineBody + "</p>";
+                // Object.keys(x).forEach( (p) => {
+                //     results += "<p>" + (p + ": " + x[p]) + "</p>";
+                // });
+                results += "</div>";
             });
             results += "</div>";
             resultsdiv.append(results);
