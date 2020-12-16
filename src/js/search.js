@@ -1,10 +1,14 @@
 // TODO: recreate ElasticSearch POC using Luna.js index
 // Iteration 1: complete
 //      Title index only: deserialize index and run a search against it, no input
-// Iteration 2:
+// Iteration 2: complete
 //      Repeat pattern to load first line body and chorus indexes
+// Iteration 3: complete 12/15 8:15pm
+//      Bring in Webflow search HTML and adapt ElasticSearch POC to Lunr, returning hits w/o lookup
+// Iteration 4:
+//      Look up Lunr hit references in full JSON index and format as HTML search results
 
-var maindiv = $('#maindiv');
+var searchdiv = $("#osh-search-div")
 var lunrTitleIndex;
 var lunrFirstLineBodyIndex;
 var lunrFirstLineChorusIndex;
@@ -17,26 +21,12 @@ function fetchIndexData(url, callback){
         .then(() => callback(obj))
 }
 
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/lunr/db/titleIndex.json', loadTitleIndex);
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/lunr/db/firstLineBodyIndex.json', loadFirstLineBodyIndex);
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/lunr/db/firstLineChorusIndex.json', loadFirstLineChorusIndex);
+fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
+fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
+fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
 
 function loadTitleIndex(arrOfObjs){
     lunrTitleIndex = lunr.Index.load(arrOfObjs);
-    // console.log({ arrOfObjs });
-    // searchArray = lunrTitleIndex.search('Grace');
-    // var results = "";
-    // searchArray.forEach( (x) => {
-    //     results += "<p> Id: " + x.ref + "<ul>"
-    //     Object.keys(x).forEach( (p) => {
-    //         results += "<li>" + (p + ": " + x[p]) + "</li>";
-    //     });
-    //     results += "</ul> </p> <hr>"
-    // })
-    // results += "";
-    // console.log({results});
-    // maindiv.empty();
-    // maindiv.append(results);
 }
 
 function loadFirstLineBodyIndex(arrOfObjs){
@@ -45,4 +35,79 @@ function loadFirstLineBodyIndex(arrOfObjs){
 
 function loadFirstLineChorusIndex(arrOfObjs){
     lunrFirstLineChorusIndex = lunr.Index.load(arrOfObjs);
+}
+
+function generateSearchUI(){
+    var html = "";
+    html += "<input ";
+    html += "type = \"text\" ";
+    html += "className = \"w-input\" ";
+    html += "autoFocus = \"true\" ";
+    html += "maxLength = \"256\" ";
+    html += "name = \"search\" ";
+    html += "data-name = \"search\" ";
+    html += "placeholder = \"Hymn number or words appearing in the hymn\" ";
+    html += "id = \"osh-search\" / >";
+
+    searchdiv.append(html);
+}
+
+var loadingtext = $('#loading');
+var noresultstext = $('#noresults');
+var resultsdiv = $('#osh-results-div');
+
+generateSearchUI();
+// This input box exists only after it is generated
+var searchbox = $('input#osh-search');
+
+var timer = 0;
+
+// Executes the search function 250 milliseconds after user stops typing
+searchbox.keyup(function () {
+    clearTimeout(timer);
+    timer = setTimeout(search, 250);
+});
+
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+async function search() {
+    // Clear results before searching
+    noresultstext.hide();
+    resultsdiv.empty();
+    loadingtext.show();
+    // Get the query from the user
+    let query = searchbox.val();
+    // Only run a query if the string contains at least three characters
+    if ((query.length > 2) || (isNumeric(query))) {
+        let searchArray = lunrTitleIndex.search(query);
+        if (searchArray.length > 0) {
+            loadingtext.hide();
+            // Sort results -- the JSON comes back sorted by score but
+            // that is not guaranteed to be honored in all clients because
+            // the JSON spec doesn't require preservation of order in objects.
+            // searchArray.sort(function(a, b) {
+            //     // Score, descending
+            //     return b._score - a._score;
+            // });
+            // Iterate through the results and write them to HTML
+            resultsdiv.append('<p>Found ' + searchArray.length + '.</p>');
+            var results = "";
+            searchArray.forEach( (x) => {
+                results += "<div><ul>";
+                Object.keys(x).forEach( (p) => {
+                    results += "<li>" + (p + ": " + x[p]) + "</li>";
+                });
+                results += "</ul>";
+            });
+            results += "</div>";
+            resultsdiv.append(results);
+            // resultsdiv.append('<div class="result">' +
+            //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
+        } else {
+            noresultstext.show();
+        }
+    }
+    loadingtext.hide();
 }

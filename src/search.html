@@ -5,9 +5,19 @@
     <title>Search - Old School Hymnal Centennial Edition</title>
 </head>
 <body>
-    <div id="maindiv">Main div</div>
+    <div id="searchdiv">
+        <h2 class="work-heading home">Find a Hymn</h2>
+        <div id="osh-search-div">
+            <div id="osh-search-input" class="w-form">
+
+            </div>
+        </div>
+        <div id="noresults" class="text-block-2">No results, try a different search.</div>
+        <div id="loading" class="text-block-3">Getting results...</div>
+        <div id="osh-results-div"></div>
+    </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/lunr/lunr.js"></script>
-    <script src="https://osh100-search-app.s3.amazonaws.com/lunr/src/search.js"></script>
+    <script src="https://osh100-search-app.s3.amazonaws.com/js/search.js"></script>
 </body>
 </html>
