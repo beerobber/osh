@@ -1,4 +1,7 @@
-// TODO: recreate ElasticSearch POC using Lunr.js index
+// Hymn search using pre-serialized, static Lunr.js index instead of live ElasticSearch.
+// Dec 2020
+// Chris Taylor
+//
 // Iteration 1: complete
 //      Title index only: deserialize index and run a search against it, no input
 // Iteration 2: complete
@@ -7,6 +10,13 @@
 //      Bring in Webflow search HTML and adapt ElasticSearch POC to Lunr, returning hits w/o lookup
 // Iteration 4: complete 12/15 9:10pm
 //      Look up Lunr hit references in full JSON index and format as HTML search results
+
+// After iteration 4, the approach seemed viable and I integrated it with Webflow.
+// The local search.html file mirrors key structural elements of the Webflow home page,
+// so this script works with both.
+
+// Iteration 5:
+//      Incorporate all 3 indices + hymn numbers in search and group results accordingly
 
 var searchdiv = $("#osh-search-div")
 var lunrTitleIndex;
@@ -53,7 +63,7 @@ function generateSearchUI(){
     html += "name = \"search\" ";
     html += "data-name = \"search\" ";
     html += "placeholder = \"Hymn number or words appearing in the hymn\" ";
-    html += "id = \"osh-search\" / >";
+    html += "id = \"osh-search-dynamic\" / >";
 
     searchdiv.append(html);
 }
@@ -64,7 +74,7 @@ var resultsdiv = $('#osh-results-div');
 
 generateSearchUI();
 // This input box exists only after it is generated
-var searchbox = $('input#osh-search');
+var searchbox = $('input#osh-search-dynamic');
 
 var timer = 0;
 
