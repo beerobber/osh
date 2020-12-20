@@ -21,10 +21,11 @@ node_modules/
 ehthumbs.db
 Thumbs.db
 
-# ignore Editor files
+# ignore Editor and IDE files
 *.sublime-project
 *.sublime-workspace
 *.komodoproject
+.idea/
 
 # ignore log files and databases
 *.log
