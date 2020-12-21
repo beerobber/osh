@@ -117,7 +117,7 @@ async function search() {
                 });
 
                 // Format results
-                results += "<div><h3><a href=\"/hymn?number=\"" + x.ref + "\">";
+                results += "<div><h3><a href=\"/hymn?number=" + x.ref + "\">";
                 results += x.ref + " &mdash; " + fullIndex[i].title  + "</a></h3>";
                 results += "<p>" + fullIndex[i].lyricsFirstLineBody + "</p>";
                 // Object.keys(x).forEach( (p) => {
