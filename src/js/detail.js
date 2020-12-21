@@ -57,11 +57,6 @@ async function search() {
             $('#hymntitle').html(fullIndex[i]['title']);
             $('#hymntune').html(fullIndex[i]['tune']);
         }
-        // Clean up all "nan" instances
-        // $('.gridvalue').each(function() {
-        //     var text = $(this).text();
-        //     $(this).text(text.replace(/^nan/, ''));
-        // });
 
         // Show detail
         $('#hymndetail').show();

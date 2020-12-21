@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy-js": "npm-run-all -p deploy-js:*",
+    "deploy-js:index": "aws s3 cp ./src/js/index.js s3://osh100-search-app/js/ --acl public-read",
     "deploy-js:search": "aws s3 cp ./src/js/search.js s3://osh100-search-app/js/ --acl public-read",
     "deploy-js:detail": "aws s3 cp ./src/js/detail.js s3://osh100-search-app/js/ --acl public-read",
     "deploy-idx": "npm-run-all -p deploy-idx:*",
