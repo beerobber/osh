@@ -97,8 +97,14 @@ async function search() {
     let query = searchbox.val();
     // Only run a query if the string contains at least three characters
     if ((query.length > 2) || (isNumeric(query))) {
-        let searchArray = lunrTitleIndex.search(query);
-        if (searchArray.length > 0) {
+        let searchArrayTitle = lunrTitleIndex.search(query);
+        let searchArrayFirstLineBody = lunrFirstLineBodyIndex.search(query);
+        let searchArrayFirstLineChorus = lunrFirstLineChorusIndex.search(query);
+
+        let duplicateCheck = [];
+
+        // Title Display
+        if (searchArrayTitle.length > 0) {
             loadingtext.hide();
             // Sort results -- the JSON comes back sorted by score but
             // that is not guaranteed to be honored in all clients because
@@ -108,13 +114,15 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<p>Found ' + searchArray.length + '.</p>');
+            resultsdiv.append('<p>Found ' + searchArrayTitle.length + '.</p>');
             var results = "<div class=\"result\">";
-            searchArray.forEach( (x) => {
+            searchArrayTitle.forEach( (x) => {
                 // Look up title
                 let i = fullIndex.findIndex((hymn) => {
                     return hymn.ceNumber == x.ref;
                 });
+                // First query, no dup checking here, just logging
+                duplicateCheck[i] = 1;
 
                 // Format results
                 results += "<div><h3><a href=\"/hymn?number=" + x.ref + "\">";
@@ -132,6 +140,91 @@ async function search() {
         } else {
             noresultstext.show();
         }
+
+        // First Line Body Display
+        if (searchArrayFirstLineBody.length > 0) {
+            loadingtext.hide();
+            // Sort results -- the JSON comes back sorted by score but
+            // that is not guaranteed to be honored in all clients because
+            // the JSON spec doesn't require preservation of order in objects.
+            // searchArray.sort(function(a, b) {
+            //     // Score, descending
+            //     return b._score - a._score;
+            // });
+            // Iterate through the results and write them to HTML
+            resultsdiv.append('<p>Found ' + searchArrayFirstLineBody.length + '.</p>');
+            var results = "<div class=\"result\">";
+            searchArrayFirstLineBody.forEach( (x) => {
+                // Look up verse
+                let i = fullIndex.findIndex((hymn) => {
+                    return hymn.ceNumber == x.ref;
+                });
+                if(isNaN(duplicateCheck[i])) {
+                    duplicateCheck[i] = 1;
+                    // Format results
+                    results += "<div><h3><a href=\"/hymn?number=" + x.ref + "\">";
+                    results += x.ref + " &mdash; " + fullIndex[i].title  + "</a></h3>";
+                    results += "<p>" + fullIndex[i].lyricsFirstLineBody + "</p>";
+                    // Object.keys(x).forEach( (p) => {
+                    //     results += "<p>" + (p + ": " + x[p]) + "</p>";
+                    // });
+                    results += "</div>";
+                } else {
+                    // duplicate, record
+                    duplicateCheck[i] = 1;
+            
+                }
+            });
+            results += "</div>";
+            resultsdiv.append(results);
+            // resultsdiv.append('<div class="result">' +
+            //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
+        } else {
+            noresultstext.show();
+        }
+
+        // First Line Chorus Display
+        if (searchArrayFirstLineChorus.length > 0) {
+            loadingtext.hide();
+            // Sort results -- the JSON comes back sorted by score but
+            // that is not guaranteed to be honored in all clients because
+            // the JSON spec doesn't require preservation of order in objects.
+            // searchArray.sort(function(a, b) {
+            //     // Score, descending
+            //     return b._score - a._score;
+            // });
+            // Iterate through the results and write them to HTML
+            resultsdiv.append('<p>Found ' + searchArrayFirstLineChorus.length + '.</p>');
+            var results = "<div class=\"result\">";
+            searchArrayFirstLineChorus.forEach( (x) => {
+                // Look up chorus
+                let i = fullIndex.findIndex((hymn) => {
+                    return hymn.ceNumber == x.ref;
+                });
+                if(isNaN(duplicateCheck[i])) {
+                    duplicateCheck[i] = 1;
+                    // Format results
+                    results += "<div><h3><a href=\"/hymn?number=" + x.ref + "\">";
+                    results += x.ref + " &mdash; " + fullIndex[i].title  + "</a></h3>";
+                    results += "<p>" + fullIndex[i].lyricsFirstLineBody + "</p>";
+                    // Object.keys(x).forEach( (p) => {
+                    //     results += "<p>" + (p + ": " + x[p]) + "</p>";
+                    // });
+                    results += "</div>";
+                } else {
+                    // duplicate, record
+                    duplicateCheck[i] = 1;
+            
+                }
+            });
+            results += "</div>";
+            resultsdiv.append(results);
+            // resultsdiv.append('<div class="result">' +
+            //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
+        } else {
+            noresultstext.show();
+        }
+
     }
     loadingtext.hide();
 }
