@@ -102,9 +102,11 @@ async function search() {
         let searchArrayFirstLineChorus = lunrFirstLineChorusIndex.search(query);
 
         let duplicateCheck = [];
+        noResultes = true;
 
         // Title Display
         if (searchArrayTitle.length > 0) {
+            noResultes = false;
             loadingtext.hide();
             // Sort results -- the JSON comes back sorted by score but
             // that is not guaranteed to be honored in all clients because
@@ -114,7 +116,8 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<p>Found ' + searchArrayTitle.length + '.</p>');
+            resultsdiv.append('<h2 class="work-heading home">Titles Found</h2>');
+            //resultsdiv.append('<p>Found ' + searchArrayTitle.length + '.</p>');
             var results = "<div class=\"result\">";
             searchArrayTitle.forEach( (x) => {
                 // Look up title
@@ -137,13 +140,12 @@ async function search() {
             resultsdiv.append(results);
             // resultsdiv.append('<div class="result">' +
             //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
-        } else {
-            noresultstext.show();
         }
 
         // First Line Body Display
         if (searchArrayFirstLineBody.length > 0) {
             loadingtext.hide();
+            noResultes = false;
             // Sort results -- the JSON comes back sorted by score but
             // that is not guaranteed to be honored in all clients because
             // the JSON spec doesn't require preservation of order in objects.
@@ -152,7 +154,8 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<p>Found ' + searchArrayFirstLineBody.length + '.</p>');
+            resultsdiv.append('<h2 class="work-heading home">Verses Found</h2>');
+            //resultsdiv.append('<p>Found ' + searchArrayFirstLineBody.length + '.</p>');
             var results = "<div class=\"result\">";
             searchArrayFirstLineBody.forEach( (x) => {
                 // Look up verse
@@ -179,13 +182,12 @@ async function search() {
             resultsdiv.append(results);
             // resultsdiv.append('<div class="result">' +
             //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
-        } else {
-            noresultstext.show();
         }
 
         // First Line Chorus Display
         if (searchArrayFirstLineChorus.length > 0) {
             loadingtext.hide();
+            noResultes = false;
             // Sort results -- the JSON comes back sorted by score but
             // that is not guaranteed to be honored in all clients because
             // the JSON spec doesn't require preservation of order in objects.
@@ -194,7 +196,8 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<p>Found ' + searchArrayFirstLineChorus.length + '.</p>');
+            resultsdiv.append('<h2 class="work-heading home">Bradi</h2>');
+            //resultsdiv.append('<p>Found ' + searchArrayFirstLineChorus.length + '.</p>');
             var results = "<div class=\"result\">";
             searchArrayFirstLineChorus.forEach( (x) => {
                 // Look up chorus
@@ -221,7 +224,9 @@ async function search() {
             resultsdiv.append(results);
             // resultsdiv.append('<div class="result">' +
             //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
-        } else {
+        }
+    
+        if(noResultes) {
             noresultstext.show();
         }
 
