@@ -93,8 +93,14 @@ function hasSpaces(s) {
 }
 
 function lunrLogicalAnd(q) {
-    var qnew = "+" + q;
-    qnew = qnew.replace(/ \b/g, " +");
+    var qnew = "";
+    var res = q.split(" ");
+    res.forEach( (word) => {
+        if (word.length > 3) {
+            word = "+" + word;
+        }
+        qnew += " " + word;
+    })
     // Final word treated like a fragment, add a wildcard
     qnew += "*";
     return qnew.replace(/ \*/, "");
