@@ -116,7 +116,7 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<h2 class="work-heading home">Titles Found</h2>');
+            resultsdiv.append('<h2 class="work-heading home">Title Matches</h2>');
             //resultsdiv.append('<p>Found ' + searchArrayTitle.length + '.</p>');
             var results = "<div class=\"result\">";
             searchArrayTitle.forEach( (x) => {
@@ -154,7 +154,7 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<h2 class="work-heading home">Verses Found</h2>');
+            resultsdiv.append('<h2 class="work-heading home">Verse Matches</h2>');
             //resultsdiv.append('<p>Found ' + searchArrayFirstLineBody.length + '.</p>');
             var results = "<div class=\"result\">";
             searchArrayFirstLineBody.forEach( (x) => {
@@ -196,7 +196,7 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<h2 class="work-heading home">Bradi</h2>');
+            resultsdiv.append('<h2 class="work-heading home">Chorus Matches</h2>');
             //resultsdiv.append('<p>Found ' + searchArrayFirstLineChorus.length + '.</p>');
             var results = "<div class=\"result\">";
             searchArrayFirstLineChorus.forEach( (x) => {
