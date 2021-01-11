@@ -88,6 +88,18 @@ function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+function hasSpaces(s) {
+    return (s.indexOf(' ') >= 0);
+}
+
+function lunrLogicalAnd(q) {
+    var qnew = "+" + q;
+    qnew = qnew.replace(/ \b/g, " +");
+    // Final word treated like a fragment, add a wildcard
+    qnew += "*";
+    return qnew.replace(/ \*/, "");
+}
+
 async function search() {
     // Clear results before searching
     noresultstext.hide();
@@ -97,6 +109,16 @@ async function search() {
     let query = searchbox.val();
     // Only run a query if the string contains at least three characters
     if ((query.length > 2) || (isNumeric(query))) {
+
+        if (!hasSpaces(query) && !isNumeric(query)) {
+            // If there aren't any numbers or spaces (just one word fragment) add a wildcard character
+            query += "*";
+        } else if (hasSpaces(query)) {
+            // There are multiple words in this query; make them logical AND terms for Lunr
+            query = lunrLogicalAnd(query);
+            console.log(query);
+        }
+
         let searchArray = lunrTitleIndex.search(query);
         if (searchArray.length > 0) {
             loadingtext.hide();
@@ -108,7 +130,7 @@ async function search() {
             //     return b._score - a._score;
             // });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<p>Found ' + searchArray.length + '.</p>');
+            resultsdiv.append('<p>Found ' + searchArray.length + ', :' + query + ':</p>');
             var results = "<div class=\"result\">";
             searchArray.forEach( (x) => {
                 // Look up title
