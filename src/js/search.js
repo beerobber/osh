@@ -117,14 +117,15 @@ async function search() {
     if ((query.length > 2) || (isNumeric(query))) {
 
         if (!hasSpaces(query) && !isNumeric(query)) {
-            // If there aren't any numbers or spaces (just one word fragment) add a wildcard character
-            query += "*";
+            // If there aren't any numbers or spaces (just one word fragment)
+            // then search for both the unmodified fragment/word and a wildcard variant
+            query += " " + query + "*";
         } else if (hasSpaces(query)) {
             // There are multiple words in this query; make them logical AND terms for Lunr
             query = lunrLogicalAnd(query);
-            console.log(query);
         }
 
+        console.log(":" + query + ":");
         let searchArray = lunrTitleIndex.search(query);
         if (searchArray.length > 0) {
             loadingtext.hide();
