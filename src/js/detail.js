@@ -40,7 +40,6 @@ async function search() {
             return hymn.ceNumber == hymnNumber;
         });
         
-        if (i) {
             // TODO: update keywords to new values from spreadsheet
             $('#hymnarrangement').html(fullIndex[i]['creditArrangement']);
             $('#hymncopyright').html(fullIndex[i]['creditCopyright']);
