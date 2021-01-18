@@ -92,10 +92,14 @@ function hasSpaces(s) {
     return (s.indexOf(' ') >= 0);
 }
 
+// Invoked on multi-word queries; takes the raw set of query words and constructs a Lunr search string.
+// We're abstracting the complexities of boolean search syntax and making some assumptions to get what is
+// hopefully a reasonable result for most inputs.
 function lunrLogicalAnd(q) {
     var qnew = "";
     var res = q.split(" ");
     res.forEach( (word) => {
+        // For significant words, make them mandatory, not optional, with a "+" prefix; short words remain optional
         if (word.length > 3) {
             word = "+" + word;
         }
@@ -103,7 +107,31 @@ function lunrLogicalAnd(q) {
     })
     // Final word treated like a fragment, add a wildcard
     qnew += "*";
+
+    // No leading spaces
+    qnew = qnew.trimLeft();
+
+    // Remove any wildcard appended to a space, whether input by user or added by our algorithm
     return qnew.replace(/ \*/, "");
+}
+
+// Merge an index search result object into an existing array of such objects, if there is a match
+function mergeHit(existingArray, newhit) {
+    let existing = existingArray.find(o => o.ref === newhit.ref);
+    if (existing) {
+
+        // Add score of new hit to existing compiled result score for this hymn
+        existing.score = existing.score + newhit.score;
+
+        // Merge metadata; might munge it, but it isn't currently being used for anything....
+        existing.matchData.metadata = {
+            ...existing.matchData.metadata,
+            ...newhit.matchData.metadata
+        };
+        return true;
+    } else {
+        return false;
+    }
 }
 
 async function search() {
@@ -113,33 +141,82 @@ async function search() {
     loadingtext.show();
     // Get the query from the user
     let query = searchbox.val();
-    // Only run a query if the string contains at least three characters
+    // Only run a query if the string contains at least three characters, or is a number
     if ((query.length > 2) || (isNumeric(query))) {
 
+        // For non-numeric searches, build a query based on user input
         if (!hasSpaces(query) && !isNumeric(query)) {
             // If there aren't any numbers or spaces (just one word fragment)
             // then search for both the unmodified fragment/word and a wildcard variant
-            query += " " + query + "*";
-        } else if (hasSpaces(query)) {
+            query += "* " + query;
+        } else if (hasSpaces(query) && !isNumeric(query)) {
             // There are multiple words in this query; make them logical AND terms for Lunr
             query = lunrLogicalAnd(query);
         }
 
         console.log(":" + query + ":");
-        let searchArray = lunrTitleIndex.search(query);
-        if (searchArray.length > 0) {
+        let resultsCompiled = [];
+        if (isNumeric(query)) {
+            // An all-numeric query is interpreted as a hymn number, let's see if it's in the index
+            let i = fullIndex.findIndex((hymn) => {
+                return hymn.ceNumber == query;
+            });
+            if (i > 0) {
+                // Emulating the Lunr return payload, in case something downstream cares about that
+                resultsCompiled = [{"ref": (i + 1.0), "score": 1.0, "matchData": {"metadata": {query: {"ceNumber":{}}}}}];
+            }
+        } else {
+            let resultsTitles = lunrTitleIndex.search(query);
+            let resultsFirstLines = lunrFirstLineBodyIndex.search(query);
+            let resultsChoruses = lunrFirstLineChorusIndex.search(query);
+
+            // Combine searches into a single, simplified array. Add scores. Merge metadata.
+
+            // Start with titles
+            if (resultsTitles.length > 0) {
+                resultsCompiled = resultsTitles;
+            }
+
+            // Examine and merge first line matches
+            if (resultsFirstLines.length > 0) {
+                if (resultsCompiled.length > 0) {
+                    resultsFirstLines.forEach( (newhit) => {
+                        if (!mergeHit(resultsCompiled, newhit)) {
+                            // Unique hit for this index
+                            resultsCompiled.push(newhit);
+                        }
+                    });
+                } else {
+                    resultsCompiled = resultsFirstLines;
+                }
+            }
+
+            // Examine and merge chorus matches
+            if (resultsChoruses.length > 0) {
+                if (resultsCompiled.length > 0) {
+                    resultsChoruses.forEach( (newhit) => {
+                        if (!mergeHit(resultsCompiled, newhit)) {
+                            // Unique hit for this index
+                            resultsCompiled.push(newhit);
+                        }
+                    });
+                } else {
+                    resultsCompiled = resultsChoruses;
+                }
+            }
+        }
+
+        // Present results
+        if (resultsCompiled.length > 0) {
             loadingtext.hide();
-            // Sort results -- the JSON comes back sorted by score but
-            // that is not guaranteed to be honored in all clients because
-            // the JSON spec doesn't require preservation of order in objects.
-            // searchArray.sort(function(a, b) {
-            //     // Score, descending
-            //     return b._score - a._score;
-            // });
+            // Sort combined results by score.
+            resultsCompiled.sort(function(a, b) {
+                // Score, descending
+                return b._score - a._score;
+            });
             // Iterate through the results and write them to HTML
-            resultsdiv.append('<p>Found ' + searchArray.length + ', :' + query + ':</p>');
             var results = "<div class=\"result\">";
-            searchArray.forEach( (x) => {
+            resultsCompiled.forEach( (x) => {
                 // Look up title
                 let i = fullIndex.findIndex((hymn) => {
                     return hymn.ceNumber == x.ref;
