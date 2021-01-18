@@ -19,6 +19,7 @@ stdin.on('end', function () {
 
   var idx = lunr(function () {
     this.ref('ceNumber')
+    // this.field('ceNumber')
     // Future enhancement: loop through all fields passed
     this.field(field)
 
