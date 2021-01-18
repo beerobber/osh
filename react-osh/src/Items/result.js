@@ -8,7 +8,7 @@ const Result = (props) => {
     return (
         <div className={props.class}>
 
-            <label onClick={props.clicked}>{props.title}</label>
+            <label className="title" onClick={props.clicked}>{props.title}</label>
             <label>{props.number}</label>
             <label>{props.url}</label>
             <label>{props.tune}</label>
