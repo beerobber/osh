@@ -41,21 +41,22 @@ async function search() {
         });
         
         if (i>0) {
-            // TODO: update keywords to new values from spreadsheet
-            $('#hymnarrangement').html(fullIndex[i]['creditArrangement']);
-            $('#hymncopyright').html(fullIndex[i]['creditCopyright']);
-            $('#hymnfirstappeared').html(fullIndex[i]['firstAppeared']);
-            $('#hymnfirstlinebody').html(fullIndex[i]['lyricsFirstLineBody']);
-            $('#hymnfirstlinechorus').html(fullIndex[i]['lyricsFirstLineChorus']);
-            $('#hymninscription').html(fullIndex[i]['inscription']);
-            $('#hymnlyrics').html(fullIndex[i]['creditLyrics']);
-            $('#hymnlyricsedited').html(fullIndex[i]['creditLyricsEdits']);
-            $('#hymnmusic').html(fullIndex[i]['creditMusic']);
             $('#hymnnumber').html(fullIndex[i]['ceNumber']);
-            $('#hymnscripturereference').html(fullIndex[i]['scriptureReference']);
-            $('#hymnsource').html(fullIndex[i]['source']);
             $('#hymntitle').html(fullIndex[i]['title']);
             $('#hymntune').html(fullIndex[i]['tune']);
+            $('#hymnfirstlinebody').html(fullIndex[i]['lyricsFirstLineBody']);
+            $('#hymnfirstlinechorus').html(fullIndex[i]['lyricsFirstLineChorus']);
+            $('#hymncopyright').html(fullIndex[i]['creditCopyright']);
+            // Practice tracks: full, soprano, alto, tenor, bass
+            // hymnptfull, hymnptsoprano, hymnptalto, hymnpttenor, hymnptbass
+            $('#hymnlyrics').html(fullIndex[i]['creditLyrics']);
+            $('#hymnmusic').html(fullIndex[i]['creditMusic']);
+            $('#hymnarrangement').html(fullIndex[i]['creditArrangement']);
+            $('#hymnfirstappeared').html(fullIndex[i]['firstAppeared']);
+            $('#hymnscripturereference').html(fullIndex[i]['scriptureReference']);
+            $('#hymninscription').html(fullIndex[i]['inscription']);
+            // $('#hymnlyricsedited').html(fullIndex[i]['creditLyricsEdits']);
+            // $('#hymnsource').html(fullIndex[i]['source']);
         }
 
         // Show detail
