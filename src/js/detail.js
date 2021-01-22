@@ -28,39 +28,30 @@ async function fetchIndexData(url){
     }
 }
 
-function buildPracticeTrackLinks(hymnNum) {
+async function buildPracticeTrackLinks(hymnNum) {
     const urlPrefix = "https://osh-ce-practice-tracks.s3.amazonaws.com/";
     const suffix = ".m4a";
     // Pad hymn number with 1 or 2 leading zeroes if less than 100
     let stringNum = hymnNum.toString();
     let hymnString = urlPrefix + "000".substring(0, 3 - stringNum.length) + stringNum;
-    return [
+    let trackLinks = [
         {divid: "#hymnptsoprano", url: hymnString + "S" + suffix},
         {divid: "#hymnptalto", url: hymnString + "A" + suffix},
         {divid: "#hymnpttenor", url: hymnString + "T" + suffix},
         {divid: "#hymnptbass", url: hymnString + "B" + suffix},
         {divid: "#hymnptfull", url: hymnString + "F" + suffix}
     ];
-}
-
-async function pingPracticeTracks(tracks) {
     // Fetch only the headers of the practice track, just confirming it exists and is accessible
-    for (let i in tracks) {
+    for (let i in trackLinks) {
         let result = "Not yet available";
-        let res = await fetch(tracks[i].url + "?notcached=1", {method: 'HEAD', mode: "cors"});
-        if (res.ok) {
-            result = "<a href='" + tracks[i].url + "'>Download</a>";
-        }
-        $(tracks[i].divid).html(result);
-    }
-}
-async function pingPracticeTrack(url) {
-    // Fetch only the headers of the practice track, just confirming it exists and is accessible
-    let res = await fetch(url, {method: 'HEAD', mode: "cors"});
-    if (res.ok) {
-        return(url);
-    } else {
-        return("Not yet available");
+        // Appending a querystring parameter to URL to avoid using browser's cached req/res resources
+        fetch(trackLinks[i].url + "?notcached=1", {method: 'HEAD', mode: "cors"})
+            .then(response => {
+                if (response.ok) {
+                    result = "<a href='" + trackLinks[i].url + "'>Download</a>";
+                }
+                $(trackLinks[i].divid).html(result);
+            })
     }
 }
 
@@ -83,27 +74,20 @@ async function search() {
             $('#hymnfirstlinebody').html(fullIndex[i]['lyricsFirstLineBody']);
             $('#hymnfirstlinechorus').html(fullIndex[i]['lyricsFirstLineChorus']);
             $('#hymncopyright').html(fullIndex[i]['creditCopyright']);
-            // Practice tracks: full, soprano, alto, tenor, bass
-            // hymnptfull, hymnptsoprano, hymnptalto, hymnpttenor, hymnptbass
+            // Practice tracks: full, soprano, alto, tenor, bass (filled in after load)
             $('#hymnlyrics').html(fullIndex[i]['creditLyrics']);
             $('#hymnmusic').html(fullIndex[i]['creditMusic']);
             $('#hymnarrangement').html(fullIndex[i]['creditArrangement']);
             $('#hymnfirstappeared').html(fullIndex[i]['firstAppeared']);
             $('#hymnscripturereference').html(fullIndex[i]['scriptureReference']);
             $('#hymninscription').html(fullIndex[i]['inscription']);
-            // $('#hymnlyricsedited').html(fullIndex[i]['creditLyricsEdits']);
-            // $('#hymnsource').html(fullIndex[i]['source']);
         }
 
         // Show detail
         $('#hymndetail').show();
 
-        let trackLinks = buildPracticeTrackLinks(hymnNumber);
-        pingPracticeTracks(trackLinks);
-        // for (let i in trackLinks) {
-        //     console.log(trackLinks[i].divid + ": " + trackLinks[i].url);
-        //     $(trackLinks[i].divid).html("Result: " + pingPracticeTrack(trackLinks[i].url));
-        // }
+        // Add links to practice tracks, if any are available
+        buildPracticeTrackLinks(hymnNumber);
     }
 }
 
