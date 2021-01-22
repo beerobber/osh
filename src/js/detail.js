@@ -43,6 +43,17 @@ function buildPracticeTrackLinks(hymnNum) {
     ];
 }
 
+async function pingPracticeTracks(tracks) {
+    // Fetch only the headers of the practice track, just confirming it exists and is accessible
+    for (let i in tracks) {
+        let result = "Not yet available";
+        let res = await fetch(tracks[i].url + "?notcached=1", {method: 'HEAD', mode: "cors"});
+        if (res.ok) {
+            result = "<a href='" + tracks[i].url + "'>Download</a>";
+        }
+        $(tracks[i].divid).html(result);
+    }
+}
 async function pingPracticeTrack(url) {
     // Fetch only the headers of the practice track, just confirming it exists and is accessible
     let res = await fetch(url, {method: 'HEAD', mode: "cors"});
@@ -88,10 +99,11 @@ async function search() {
         $('#hymndetail').show();
 
         let trackLinks = buildPracticeTrackLinks(hymnNumber);
-        for (let i in trackLinks) {
-            console.log(trackLinks[i].divid + ": " + trackLinks[i].url);
-            $(trackLinks[i].divid).html("Result: " + pingPracticeTrack(trackLinks[i].url));
-        }
+        pingPracticeTracks(trackLinks);
+        // for (let i in trackLinks) {
+        //     console.log(trackLinks[i].divid + ": " + trackLinks[i].url);
+        //     $(trackLinks[i].divid).html("Result: " + pingPracticeTrack(trackLinks[i].url));
+        // }
     }
 }
 
