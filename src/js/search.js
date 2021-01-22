@@ -161,7 +161,7 @@ async function search() {
             let i = fullIndex.findIndex((hymn) => {
                 return hymn.ceNumber == query;
             });
-            if (i > 0) {
+            if (i >= 0) {
                 // Emulating the Lunr return payload, in case something downstream cares about that
                 resultsCompiled = [{"ref": (i + 1.0), "score": 1.0, "matchData": {"metadata": {query: {"ceNumber":{}}}}}];
             }
