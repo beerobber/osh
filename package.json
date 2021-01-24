@@ -6,14 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy-js": "npm-run-all -p deploy-js:*",
-    "deploy-js:index": "aws s3 cp ./src/js/index.js s3://osh100-search-app/js/ --acl public-read",
-    "deploy-js:search": "aws s3 cp ./src/js/search.js s3://osh100-search-app/js/ --acl public-read",
-    "deploy-js:detail": "aws s3 cp ./src/js/detail.js s3://osh100-search-app/js/ --acl public-read",
+    "deploy-js:index": "aws s3 cp ./src/js/index.js s3://osh-web-assets/js/ --acl public-read",
+    "deploy-js:search": "aws s3 cp ./src/js/search.js s3://osh-web-assets/js/ --acl public-read",
+    "deploy-js:detail": "aws s3 cp ./src/js/detail.js s3://osh-web-assets/js/ --acl public-read",
     "deploy-idx": "npm-run-all -p deploy-idx:*",
-    "deploy-idx:full": "aws s3 cp ./db/full/fullIndex.json s3://osh100-search-app/db/full/ --acl public-read",
-    "deploy-idx:title": "aws s3 cp ./db/lunr/titleIndex.json s3://osh100-search-app/db/lunr/ --acl public-read",
-    "deploy-idx:fl-body": "aws s3 cp ./db/lunr/firstLineBodyIndex.json s3://osh100-search-app/db/lunr/ --acl public-read",
-    "deploy-idx:fl-chorus": "aws s3 cp ./db/lunr/firstLineChorusIndex.json s3://osh100-search-app/db/lunr/ --acl public-read"
+    "deploy-idx:full": "aws s3 cp ./db/full/fullIndex.json s3://osh-web-assets/db/full/ --acl public-read",
+    "deploy-idx:title": "aws s3 cp ./db/lunr/titleIndex.json s3://osh-web-assets/db/lunr/ --acl public-read",
+    "deploy-idx:fl-body": "aws s3 cp ./db/lunr/firstLineBodyIndex.json s3://osh-web-assets/db/lunr/ --acl public-read",
+    "deploy-idx:fl-chorus": "aws s3 cp ./db/lunr/firstLineChorusIndex.json s3://osh-web-assets/db/lunr/ --acl public-read"
   },
   "author": "Chris Taylor",
   "license": "ISC",

@@ -32,10 +32,10 @@ function fetchIndexData(url, callback){
         .then(() => callback(obj))
 }
 
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
-fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/full/fullIndex.json', loadFullIndex);
+fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
+fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
+fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
+fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/full/fullIndex.json', loadFullIndex);
 
 function loadTitleIndex(arrOfObjs){
     lunrTitleIndex = lunr.Index.load(arrOfObjs);

@@ -26,7 +26,7 @@ async function fetchIndexData(url){
 
 async function render() {
 
-    await fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/full/fullIndex.json');
+    await fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/full/fullIndex.json');
 
     if (fullIndex.length > 0) {
         let hymnTemplate = $( $('#prototype') );

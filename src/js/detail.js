@@ -59,7 +59,7 @@ async function search() {
     // Get hymn number from querystring
     let hymnNumber = $.getUrlVar('number');
 
-    await fetchIndexData('https://osh100-search-app.s3.amazonaws.com/db/full/fullIndex.json');
+    await fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/full/fullIndex.json');
 
     if (hymnNumber) {
         // Look up hymn in index
