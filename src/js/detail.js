@@ -48,7 +48,7 @@ async function buildPracticeTrackLinks(hymnNum) {
         fetch(trackLinks[i].url + "?notcached=1", {method: 'HEAD', mode: "cors"})
             .then(response => {
                 if (response.ok) {
-                    result = "<a href='" + trackLinks[i].url + "'>Download</a>";
+                    result = "<a href='" + trackLinks[i].url + "'>Play</a>";
                 }
                 $(trackLinks[i].divid).html(result);
             })
