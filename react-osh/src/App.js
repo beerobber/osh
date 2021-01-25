@@ -3,6 +3,7 @@ import lunr from "lunr";
 
 import './App.css';
 import Result from './Items/result';
+import Details from './Items/Detail';
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
@@ -72,9 +73,12 @@ class App extends Component {
     s_chorusIndex: "",
     IndexHymns: [],
     searchedHymnsState: [],
+    detailHymn: [],
     isSearching: false,
-    searchDataReady: false,
+    isDetails: false,
+    isIndex: true, // default to index page
     // Lunr Data
+    searchDataReady: false,
     lunrTitleIndex: "",
     lunrFirstLineBodyIndex: "",
     lunrFirstLineChorusIndex: "",
@@ -277,43 +281,48 @@ class App extends Component {
         
     } else {
       this.setState({
-        searchedHymnsState: []
+        searchedHymnsState: [],
+        detailHymn: []
       })
+      this.displaySet(false, false, true);
     }
 
 
   }
 
-  searchOrIndex = (setVar) => {
-    this.setState({
-      isSearching: setVar
-    })
-  }
-
   displayDetails(hymn) {
     this.setState({
-      searchedHymnsState: []
+      searchedHymnsState: [],
+      detailHymn: [{}, hymn]
     })
-    
+    this.displaySet(true, false, false);
+  }
+
+  displaySet(details, index, search) {
+    this.setState({
+      isSearching: search,
+      isIndex: index,
+      isDetails: details
+    })
   }
 
   render() {
 
     let hymns = (
       this.state.IndexHymns.map((hymn, index) => {
-        return <div className="center">
-          <Result
+        return <Result
+            // Each result has an ascending unique id associated with it
+            // Must be named 'key'
+            key={index}
+
             title={hymn.title}
             number={hymn.number}
             url={hymn.url}
             tune={hymn.tune}
             firstLine={hymn.firstLine}
             class={this.state.resultStyle}
-            // Each result has an ascending unique id associated with it
-            // Must be named 'key'
-            key={index}
+            clicked={() => this.displayDetails(hymn)}
           />
-        </div>
       })
     );
 
@@ -332,25 +341,48 @@ class App extends Component {
       })
     );
 
-    let search = (
-    <div>
-      <div className="search-bar"></div>
-      <input onChange={(event) => this.searchHymns(event.target.value)}></input>
-      <div>{searchedHymns}</div>
-    </div>
+    let detailHymn = (
+      this.state.detailHymn.map((hymn, index) => {
+          return <Details
+          // Each result has an ascending unique id associated with it
+            // Must be named 'key'
+            key={index}
+
+            title={hymn.title}
+            number={hymn.number}
+            url={hymn.url}
+            tune={hymn.tune}
+            firstLine={hymn.firstLine}
+            class={this.state.resultStyle}
+          />
+      })
     );
 
-    let page = this.state.isSearching ? hymns : search;
-    
+    let search = (
+      <div className="search-bar-cont">
+        <div><hr></hr></div>
+        <input className="text-input" onChange={(event) => this.searchHymns(event.target.value)}></input>
+        <div><hr></hr></div>
+      </div>
+      );
+
+      let currentDisplay = null;
+      if(this.state.isIndex) currentDisplay = hymns;
+      if(this.state.isSearching) currentDisplay = searchedHymns;
+      if(this.state.isDetails) currentDisplay = detailHymn;
+      
 
     return (
       <div className="center">
         <div className="nav-bar">
           <h1>OSH React</h1>
-          <button onClick={() => this.searchOrIndex(false)}>Search</button>
-          <button onClick={() => this.searchOrIndex(true)}>Index</button>
+          <div className="btns">
+            <button className="btn-1" onClick={() => this.displaySet(false, false, true)}>Search</button>
+            <button className="btn-1" onClick={() => this.displaySet(false, true, false)}>Index</button>
+          </div>
+          {search}
         </div>
-        {page}
+        <div>{currentDisplay}</div>
       </div>
     );
 

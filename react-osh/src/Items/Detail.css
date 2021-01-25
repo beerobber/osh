@@ -1,0 +1,97 @@
+.details {
+    
+    border-radius: 5%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* NUMBER AND TITLE */
+#num-and-title {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: start;
+}
+
+.number {
+    margin: 10px;
+    font-size: 2em;
+}
+
+.details-title {
+    font-size: 2em;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* BARS, WORDS, AND CHORUS */
+
+#verse {
+    display: flex;
+    flex-direction: column;
+}
+
+#verse-and-bars {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+#vl {
+    border-left: 6px solid silver;
+    height: max-content;
+}
+
+#verse-and-horizontal {
+    display: flex;
+    flex-direction: column;
+}
+
+.h-bars {
+    border-top: 3px solid silver;
+    border-bottom: 3px solid silver;
+    padding: 10px;
+}
+
+
+/* SONG INFORMATION */
+
+#info-cont {
+    display: flex;
+    flex-direction: row;
+}
+
+.vert {
+    display: flex;
+    flex-direction: column;
+}
+
+.info {
+    border-bottom: 2px solid silver;
+    padding-bottom: 2px;
+    margin-top: 15px;
+    margin-left: 15px;
+    width:fit-content;
+    margin-bottom: 0;
+}
+
+.description {
+    margin-top: 0;
+    margin-left: 15px;
+    margin-right: 15px;
+    color:  rgb(91, 37, 50);
+}
+
+#words {
+    flex-grow: 1;
+}
+
+#music {
+    flex-grow: 5;
+}
+
+#tune {
+    flex-grow: 0;
+}

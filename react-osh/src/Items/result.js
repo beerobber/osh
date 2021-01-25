@@ -1,5 +1,5 @@
 import React from 'react';
-import './Items.css';
+import './Detail.css';
 
 const Result = (props) => {
     if(props.tune === "nan") {

@@ -1,11 +1,64 @@
-.parent {
+.center {
   margin: auto;
-  width: 50%;
+  width: 70%;
 }
 
 .nav-bar {
-  flex-direction: row;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
-.search-result {
-  flex-direction: row;
+
+.btns {
+  display: flex;
+  flex-direction: column;
+  margin-right: 25%;
+  margin-left: 20%;
+}
+
+.btn-1 {
+  margin: 20px;
+  width: 100%;
+  min-height: 60px;
+  /*font-family: 'Nunito', sans-serif;*/
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 1.3px;
+  font-weight: 700;
+  color: #C0C0C0;
+  background: linear-gradient(rgb(91, 37, 50) 0%, rgb(150, 38, 60) 100%);
+  border: none;
+  border-radius: 1000px;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  padding: 10px;
+}
+
+.btn-1:hover {
+  color: #C0C0C0;
+  opacity: 1;
+  box-shadow: 0px 6px 12px rgb(123, 31, 46);
+}
+
+.search-bar-cont {
+  display: flex;
+  flex-direction: column;
+}
+
+hr {
+  border: 3px solid silver;
+  border-radius: 50%;
+}
+
+.text-input {
+  border-radius: 16px;
+  margin-right: 25%;
+  margin-left: 25%;
+  padding: 4px;
+  padding-left: 10px;
+}
+
+.text-input:focus {
+  outline: none;
 }
