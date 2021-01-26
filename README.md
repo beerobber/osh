@@ -5,7 +5,7 @@ rather than one index like ElasticSearch used.
 * `titleIndex.json`: `ceNumber`,  `title`
 * `firstLineBodyIndex.json`: `ceNumber`, `lyricsFirstLineBody`
 * `firstLineChorusIndex.json`: `ceNumber`, `lyricsFirstLineChorus`
-* `lyricsIndex.json`: `ceNumber`, `lyricsFull` (future)
+* `lyricsIndex.json`: `ceNumber`, `hymnText`
 
 These can be searched separately, and results grouped, sorted, and combined.
 
@@ -19,6 +19,11 @@ In the `db` directory:
 * `raw/OSH100.csv` is the unmodified Google Sheets export of OSH metadata
 * `full/fullIndex.json` contains all index data, with keys matching Lunr schema
 * `lunr/*` contains the targeted Lunr indices listed above
+* `texts/*` contains raw text files for each hymn, e.g. `001.txt` with leading zeroes.
+
+The hymn text files were extracted directly from a print-ready format, and have some
+formatting and spelling oddities that might cause some search misses. 
+These will have to improve over time.  
 
 The Python environment tested was 3.6.3. It needs the Pandas data management library
 to manipulate CSV data. See `requirements.txt` for the full Python module list.
