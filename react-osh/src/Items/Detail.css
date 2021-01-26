@@ -37,22 +37,27 @@
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    justify-content: center;
 }
 
 #vl {
     border-left: 6px solid silver;
-    height: max-content;
 }
 
 #verse-and-horizontal {
     display: flex;
     flex-direction: column;
+    width: 70%;
 }
 
 .h-bars {
     border-top: 3px solid silver;
     border-bottom: 3px solid silver;
     padding: 10px;
+}
+
+#firstLine {
+    padding-left:20px;
 }
 
 

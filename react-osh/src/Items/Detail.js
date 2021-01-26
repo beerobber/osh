@@ -29,7 +29,9 @@ const Details = (props) => {
                     <div id="vl"></div>
                     <div id="verse-and-horizontal">
                         <div className="h-bars"></div>
-                            <label className="firstLine">Westward from the Davis Strait 'tis there 'twas said to lie</label>
+                            <br></br>
+                            <label id="firstLine"><em>Westward from the Davis Strait 'tis there 'twas said to lie</em></label>
+                            <br></br>
                         <div className="h-bars"></div>
                     </div>
                 </div>
