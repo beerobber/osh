@@ -11,6 +11,7 @@
     "deploy-js:detail": "aws s3 cp ./src/js/detail.js s3://osh-web-assets/js/ --acl public-read",
     "deploy-idx": "npm-run-all -p deploy-idx:*",
     "deploy-idx:full": "aws s3 cp ./db/full/fullIndex.json s3://osh-web-assets/db/full/ --acl public-read",
+    "deploy-idx:lyrics": "aws s3 cp ./db/lunr/lyricsIndex.json s3://osh-web-assets/db/lunr/ --acl public-read",
     "deploy-idx:title": "aws s3 cp ./db/lunr/titleIndex.json s3://osh-web-assets/db/lunr/ --acl public-read",
     "deploy-idx:fl-body": "aws s3 cp ./db/lunr/firstLineBodyIndex.json s3://osh-web-assets/db/lunr/ --acl public-read",
     "deploy-idx:fl-chorus": "aws s3 cp ./db/lunr/firstLineChorusIndex.json s3://osh-web-assets/db/lunr/ --acl public-read"

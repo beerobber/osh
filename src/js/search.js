@@ -19,6 +19,7 @@
 //      Incorporate all 3 indices + hymn numbers in search and group results accordingly
 
 var searchdiv = $("#osh-search-div")
+var lunrLyricsIndex;
 var lunrTitleIndex;
 var lunrFirstLineBodyIndex;
 var lunrFirstLineChorusIndex;
@@ -32,10 +33,15 @@ function fetchIndexData(url, callback){
         .then(() => callback(obj))
 }
 
+fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/lyricsIndex.json', loadLyricsIndex);
 fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
 fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
 fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
 fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/full/fullIndex.json', loadFullIndex);
+
+function loadLyricsIndex(arrOfObjs){
+    lunrLyricsIndex = lunr.Index.load(arrOfObjs);
+}
 
 function loadTitleIndex(arrOfObjs){
     lunrTitleIndex = lunr.Index.load(arrOfObjs);
@@ -166,6 +172,7 @@ async function search() {
                 resultsCompiled = [{"ref": (i + 1.0), "score": 1.0, "matchData": {"metadata": {query: {"ceNumber":{}}}}}];
             }
         } else {
+            let resultsLyrics = lunrLyricsIndex.search(query);
             let resultsTitles = lunrTitleIndex.search(query);
             let resultsFirstLines = lunrFirstLineBodyIndex.search(query);
             let resultsChoruses = lunrFirstLineChorusIndex.search(query);
@@ -202,6 +209,20 @@ async function search() {
                     });
                 } else {
                     resultsCompiled = resultsChoruses;
+                }
+            }
+
+            // Examine and merge lyrics matches
+            if (resultsLyrics.length > 0) {
+                if (resultsCompiled.length > 0) {
+                    resultsLyrics.forEach( (newhit) => {
+                        if (!mergeHit(resultsCompiled, newhit)) {
+                            // Unique hit for this index
+                            resultsCompiled.push(newhit);
+                        }
+                    });
+                } else {
+                    resultsCompiled = resultsLyrics;
                 }
             }
         }
