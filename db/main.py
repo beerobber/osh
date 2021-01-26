@@ -79,7 +79,7 @@ printable = set(string.printable)
 for hymn_text_file in os.scandir(r'texts'):
     if hymn_text_file.path.endswith(".txt"):
         with open(hymn_text_file, 'r', encoding='latin-1') as file:
-            hymn_number = os.path.splitext(os.path.basename(hymn_text_file))[0]
+            hymn_number = int(os.path.splitext(os.path.basename(hymn_text_file))[0])
             print(hymn_number)
             hymn_text = file.read()
 
