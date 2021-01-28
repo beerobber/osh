@@ -3,6 +3,7 @@ import json
 import string
 import os
 from subprocess import Popen, PIPE, STDOUT
+printable = set(string.printable)
 
 columns = ['ceNumber',
            'title',
@@ -35,8 +36,20 @@ f.close()
 
 osh_data.to_csv("full/fullIndex.csv")
 
+# Strip typographic glyph characters before sending to Lunr
+# Remove curly apostrophes, left quotes, right quotes
+osh_data = osh_data.replace('\u2019', '', regex=True)
+osh_data = osh_data.replace('\u201c', '', regex=True)
+osh_data = osh_data.replace('\u201d', '', regex=True)
+
 
 def write_index(column_name, json_buffer, file_name):
+
+    # For debugging pipeline stages
+    # f = open("raw/pre" + file_name, "w")
+    # f.write(json_buffer)
+    # f.close()
+
     # Spawn subprocess to invoke Lunr via Node, create and serialize Lunr index
     p = Popen(["node", "build-lunr-index.js", column_name], stdout=PIPE, stdin=PIPE, stderr=PIPE)
     serializable_index_bytes = ""
@@ -58,8 +71,8 @@ def generate_index(column, file_name):
 
     # Create a subset of data specified by column list
     index_df = pd.DataFrame(osh_data, columns=[column, 'ceNumber'])
-    json_buf = index_df.to_json(orient="records")
-    write_index(column, json_buf, file_name)
+    buffer = index_df.to_json(orient="records")
+    write_index(column, buffer, file_name)
 
 
 # Title index
@@ -73,14 +86,12 @@ generate_index('lyricsFirstLineChorus', 'firstLineChorusIndex.json')
 
 hymn_numbers = []
 hymn_texts = []
-printable = set(string.printable)
 
 # Read full text files
 for hymn_text_file in os.scandir(r'texts'):
     if hymn_text_file.path.endswith(".txt"):
         with open(hymn_text_file, 'r', encoding='latin-1') as file:
             hymn_number = int(os.path.splitext(os.path.basename(hymn_text_file))[0])
-            print(hymn_number)
             hymn_text = file.read()
 
             # Remove non-printable characters: typographic glyphs like apostrophes and curly quotes

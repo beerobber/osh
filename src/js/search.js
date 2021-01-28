@@ -103,16 +103,20 @@ function hasSpaces(s) {
 // hopefully a reasonable result for most inputs.
 function lunrLogicalAnd(q) {
     var qnew = "";
-    var res = q.split(" ");
-    res.forEach( (word) => {
+    var words = q.split(" ");
+
+    // Remove and save the final word, it gets special treatment
+    var finalWord = words.pop();
+
+    words.forEach( (word) => {
         // For significant words, make them mandatory, not optional, with a "+" prefix; short words remain optional
         if (word.length > 3) {
             word = "+" + word;
         }
         qnew += " " + word;
     })
-    // Final word treated like a fragment, add a wildcard
-    qnew += "*";
+    // Final word duplicated as an optional fragment with a wildcard
+    qnew += " " + finalWord + " " + finalWord + "*";
 
     // No leading spaces
     qnew = qnew.trimLeft();
