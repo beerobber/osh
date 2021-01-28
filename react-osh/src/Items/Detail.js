@@ -14,6 +14,7 @@ const Details = (props) => {
             <label>{props.url}</label>
             <label>{props.tune}</label>
             <label>{props.firstLine}</label> */}
+
             <div id="num-and-title">
                 <label className="number">222</label>
                 <div className="details-title">
@@ -22,24 +23,42 @@ const Details = (props) => {
                 
             </div>
 
-
             <div id="verse">
-
                 <div id="verse-and-bars">
-                    <div id="vl"></div>
+                    <div className="vl"></div>
                     <div id="verse-and-horizontal">
-                        <div className="h-bars"></div>
-                            <br></br>
-                            <label id="firstLine"><em>Westward from the Davis Strait 'tis there 'twas said to lie</em></label>
-                            <br></br>
+                    <div className="h-bars-text">
+                            <label id="description-small-verse"><b><em>verse</em></b></label>
+                        </div>
+                        <br></br>
+                        <label id="firstLine"><em>Westward from the Davis Strait 'tis there 'twas said to lie...</em></label>
+                        <br></br>
                         <div className="h-bars"></div>
                     </div>
+                    <div className="vl"></div>
                 </div>
-                
-
-
-                <label id="chorus">Ah for just one time, I would take the northwest passage</label>
             </div>
+
+
+            <h2 id="dotdotdot">. . .</h2>
+
+            {/* <label className="description"><b><em>chorus</em></b></label> */}
+            <div id="chorus">
+                <div id="chorus-and-bars">
+                    <div className="vl"></div>
+                    <div id="chorus-and-horizontal">
+                        <div className="h-bars-text">
+                            <label id="description-small-chorus"><b><em>chorus</em></b></label>
+                        </div>
+                        <br></br>
+                        <label id="chorusLine"><em>...Ah for just one time, I would take the northwest passage</em></label>
+                        <br></br>
+                        <div className="h-bars"></div>
+                    </div>
+                    <div className="vl"></div>
+                </div>
+            </div>
+
 
             <div id="info-cont">
                 
@@ -59,6 +78,7 @@ const Details = (props) => {
                 </div>
             </div>
             
+            <div className="spacer"></div>
             
             <label className="url">asonghasaurl?.com</label>
         </div>

@@ -1,6 +1,8 @@
 .center {
   margin: auto;
-  width: 70%;
+  width: 85%;
+  max-width: 900px;
+  min-width: 600px;
 }
 
 .nav-bar {

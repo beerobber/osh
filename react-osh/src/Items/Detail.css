@@ -28,6 +28,8 @@
 
 /* BARS, WORDS, AND CHORUS */
 
+/* verse */
+
 #verse {
     display: flex;
     flex-direction: column;
@@ -40,14 +42,21 @@
     justify-content: center;
 }
 
-#vl {
+.vl {
     border-left: 6px solid silver;
 }
 
 #verse-and-horizontal {
     display: flex;
     flex-direction: column;
-    width: 70%;
+    width: 100%;
+}
+
+.h-bars-text {
+    border-top: 3px solid silver;
+    border-bottom: 3px solid silver;
+    display: flex;
+    justify-content: center;
 }
 
 .h-bars {
@@ -56,10 +65,47 @@
     padding: 10px;
 }
 
-#firstLine {
-    padding-left:20px;
+#dotdotdot {
+    align-self: center;
 }
 
+#firstLine {
+    align-self: center;
+}
+
+/* chorus */
+
+#chorus {
+    display: flex;
+    flex-direction: column;
+}
+
+#chorus-and-bars {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+#chorus-and-horizontal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#description-small-verse {
+    color:  rgb(91, 37, 50);
+    align-self: center;
+}
+
+#description-small-chorus {
+    color:  rgb(91, 37, 50);
+    align-self: center;
+}
+
+#chorusLine {
+    align-self: center;
+}
 
 /* SONG INFORMATION */
 
@@ -91,6 +137,7 @@
 
 #words {
     flex-grow: 1;
+    margin-left: -16px;
 }
 
 #music {
@@ -99,4 +146,8 @@
 
 #tune {
     flex-grow: 0;
+}
+
+.spacer {
+    min-height: 150px;
 }
