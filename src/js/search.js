@@ -1,31 +1,39 @@
-// Hymn search using pre-serialized, static Lunr.js index instead of live ElasticSearch.
+// Hymn search using pre-serialized, static elasticlunr index instead of live ElasticSearch.
 // Dec 2020
 // Chris Taylor
-//
-// Iteration 1: complete
-//      Title index only: deserialize index and run a search against it, no input
-// Iteration 2: complete
-//      Repeat pattern to load first line body and chorus indexes
-// Iteration 3: complete 12/15 8:15pm
-//      Bring in Webflow search HTML and adapt ElasticSearch POC to Lunr, returning hits w/o lookup
-// Iteration 4: complete 12/15 9:10pm
-//      Look up Lunr hit references in full JSON index and format as HTML search results
-
-// After iteration 4, the approach seemed viable and I integrated it with Webflow.
-// The local search.html file mirrors key structural elements of the Webflow home page,
-// so this script works with both.
-
-// Iteration 5:
-//      Incorporate all 3 indices + hymn numbers in search and group results accordingly
 
 var searchdiv = $("#osh-search-div")
 var lunrLyricsIndex;
 var lunrTitleIndex;
 var lunrFirstLineBodyIndex;
 var lunrFirstLineChorusIndex;
+var elunrFullIndex;
 var fullIndex;
 
-function fetchIndexData(url, callback){
+// Words to remove from searches
+var oshStopWords = [
+    "",
+    "a",
+    "and",
+    "as",
+    "at",
+    "be",
+    "but",
+    "by",
+    "can",
+    "do",
+    "for",
+    "or",
+    "so",
+    "the",
+    "to",
+    "us"
+];
+elasticlunr.clearStopWords();
+elasticlunr.addStopWords(oshStopWords);
+
+// This fetch function is asynchronous in design; data will load in the background
+function fetchIndexData(url, callback) {
     var obj;
     fetch(url)
         .then(res => res.json())
@@ -33,33 +41,44 @@ function fetchIndexData(url, callback){
         .then(() => callback(obj))
 }
 
-fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/lyricsIndex.json', loadLyricsIndex);
-fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
-fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
-fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
+// Call for the biggest files first; all of them will load in the background
+fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/elunr/fullIndex.json', loadElunrIndex);
+// fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/lyricsIndex.json', loadLyricsIndex);
+// fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/titleIndex.json', loadTitleIndex);
+// fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineBodyIndex.json', loadFirstLineBodyIndex);
+// fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/lunr/firstLineChorusIndex.json', loadFirstLineChorusIndex);
 fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/full/fullIndex.json', loadFullIndex);
 
-function loadLyricsIndex(arrOfObjs){
+//
+// Callback functions below will populate globals with data once loaded
+//
+function loadElunrIndex(arrOfObjs) {
+    elunrFullIndex = elasticlunr.Index.load(arrOfObjs);
+}
+
+function loadLyricsIndex(arrOfObjs) {
     lunrLyricsIndex = lunr.Index.load(arrOfObjs);
 }
 
-function loadTitleIndex(arrOfObjs){
+function loadTitleIndex(arrOfObjs) {
     lunrTitleIndex = lunr.Index.load(arrOfObjs);
 }
 
-function loadFirstLineBodyIndex(arrOfObjs){
+function loadFirstLineBodyIndex(arrOfObjs) {
     lunrFirstLineBodyIndex = lunr.Index.load(arrOfObjs);
 }
 
-function loadFirstLineChorusIndex(arrOfObjs){
+function loadFirstLineChorusIndex(arrOfObjs) {
     lunrFirstLineChorusIndex = lunr.Index.load(arrOfObjs);
 }
 
-function loadFullIndex(arrOfObjs){
+function loadFullIndex(arrOfObjs) {
     fullIndex = arrOfObjs;
 }
 
-function generateSearchUI(){
+// Webflow doesn't like form elements outside of forms so we create the input element dynamically.
+// The CSS class name is known to Webflow.
+function generateSearchUI() {
     var html = "";
     html += "<input ";
     html += "type = \"text\" ";
@@ -74,12 +93,15 @@ function generateSearchUI(){
     searchdiv.append(html);
 }
 
+// Get some references to the search page HTML for communicating results
 var loadingtext = $('#loading');
 var noresultstext = $('#noresults');
 var resultsdiv = $('#osh-results-div');
 
+// Create the search box
 generateSearchUI();
-// This input box exists only after it is generated
+
+// Get a reference to the search input box; it exists only after it is generated
 var searchbox = $('input#osh-search-dynamic');
 
 var timer = 0;
@@ -87,7 +109,7 @@ var timer = 0;
 // Executes the search function 250 milliseconds after user stops typing
 searchbox.keyup(function () {
     clearTimeout(timer);
-    timer = setTimeout(search, 250);
+    timer = setTimeout(elunrSearch, 250);
 });
 
 function isNumeric(n) {
@@ -108,7 +130,7 @@ function lunrLogicalAnd(q) {
     // Remove and save the final word, it gets special treatment
     var finalWord = words.pop();
 
-    words.forEach( (word) => {
+    words.forEach((word) => {
         // For significant words, make them mandatory, not optional, with a "+" prefix; short words remain optional
         if (word.length > 3) {
             word = "+" + word;
@@ -126,7 +148,7 @@ function lunrLogicalAnd(q) {
 }
 
 // Merge an index search result object into an existing array of such objects, if there is a match
-function mergeHit(existingArray, newhit) {
+function mergeLunrHit(existingArray, newhit) {
     let existing = existingArray.find(o => o.ref === newhit.ref);
     if (existing) {
 
@@ -144,7 +166,95 @@ function mergeHit(existingArray, newhit) {
     }
 }
 
-async function search() {
+function runQuery(query, theFields) {
+    // Prepare query instructions
+    // Run elasticlunr search
+    return elunrFullIndex.search(query, {
+        fields: theFields,
+        bool: "AND",
+        expand: true
+    });
+}
+function htmlHymnTitle(hymnNum, title) {
+    return ("<h4><a href=\"/hymn?number=" + hymnNum + "\">" + hymnNum + " &mdash; " + title + "</a></h4>");
+}
+
+function htmlContext(context) {
+    return ("<span>" + context + "</span>");
+}
+function renderHtmlResults(searchHits, header) {
+    // Present results
+    if (searchHits.length > 0) {
+        loadingtext.hide();
+        // Sort combined results by score.
+        searchHits.sort(function(a, b) {
+            // Score, descending
+            return b._score - a._score;
+        });
+        // Iterate through the results and write them to HTML
+        let results = "<div class=\"result\"><h3>" + header + "</h3>";
+        searchHits.forEach( (x) => {
+            // console.log(x);
+            // Look up title
+            let i = fullIndex.findIndex((hymn) => {
+                return hymn.ceNumber == x.ref;
+            });
+            let hymnNum = x.ref;
+            let title = fullIndex[i].title;
+            let context = fullIndex[i].lyricsFirstLineBody;
+            if (fullIndex[i].lyricsFirstLineChorus) {
+                context += "... " + fullIndex[i].lyricsFirstLineChorus;
+            }
+
+            // Format results
+            results += "<div>";
+            results += htmlHymnTitle(hymnNum, title);
+            results += htmlContext(context);
+            results += "</div>";
+        });
+        results += "</div>";
+        resultsdiv.append(results);
+    } else {
+        noresultstext.show();
+    }
+}
+
+async function elunrSearch() {
+    // Clear results before searching
+    noresultstext.hide();
+    resultsdiv.empty();
+    loadingtext.show();
+    // Get the query from the user
+    let query = searchbox.val();
+    // Only run a query if the string contains at least three characters, or is a number
+    if ((query.length > 2) || (isNumeric(query))) {
+        console.log(":" + query + ":");
+        let resultsCompiled = [];
+        if (isNumeric(query)) {
+            // An all-numeric query is interpreted as a hymn number, let's see if it's in the index
+            let i = fullIndex.findIndex((hymn) => {
+                return hymn.ceNumber == query;
+            });
+            if (i >= 0) {
+                // Emulating the Lunr return payload, in case something downstream cares about that
+                resultsCompiled = [{
+                    "ref": (i + 1.0),
+                    "score": 1.0,
+                    "matchData": {"metadata": {query: {"ceNumber": {}}}}
+                }];
+                renderHtmlResults(resultsCompiled, "Hymn");
+            }
+        } else {
+            renderHtmlResults(runQuery(query, {title: {boost: 3}}), "Titles");
+            renderHtmlResults(runQuery(query, {lyricsFirstLineBody: {boost: 2}}), "First-Line Matches");
+            renderHtmlResults(runQuery(query, {lyricsFirstLineChorus: {boost: 2}}), "First-Line-Chorus Matches");
+            renderHtmlResults(runQuery(query, {hymnText: {boost: 1}}), "Full-Text Matches");
+        }
+    }
+    loadingtext.hide();
+}
+
+async function lunrSearch() {
     // Clear results before searching
     noresultstext.hide();
     resultsdiv.empty();
@@ -173,7 +283,11 @@ async function search() {
             });
             if (i >= 0) {
                 // Emulating the Lunr return payload, in case something downstream cares about that
-                resultsCompiled = [{"ref": (i + 1.0), "score": 1.0, "matchData": {"metadata": {query: {"ceNumber":{}}}}}];
+                resultsCompiled = [{
+                    "ref": (i + 1.0),
+                    "score": 1.0,
+                    "matchData": {"metadata": {query: {"ceNumber": {}}}}
+                }];
             }
         } else {
             let resultsLyrics = lunrLyricsIndex.search(query);
@@ -191,8 +305,8 @@ async function search() {
             // Examine and merge first line matches
             if (resultsFirstLines.length > 0) {
                 if (resultsCompiled.length > 0) {
-                    resultsFirstLines.forEach( (newhit) => {
-                        if (!mergeHit(resultsCompiled, newhit)) {
+                    resultsFirstLines.forEach((newhit) => {
+                        if (!mergeLunrHit(resultsCompiled, newhit)) {
                             // Unique hit for this index
                             resultsCompiled.push(newhit);
                         }
@@ -205,8 +319,8 @@ async function search() {
             // Examine and merge chorus matches
             if (resultsChoruses.length > 0) {
                 if (resultsCompiled.length > 0) {
-                    resultsChoruses.forEach( (newhit) => {
-                        if (!mergeHit(resultsCompiled, newhit)) {
+                    resultsChoruses.forEach((newhit) => {
+                        if (!mergeLunrHit(resultsCompiled, newhit)) {
                             // Unique hit for this index
                             resultsCompiled.push(newhit);
                         }
@@ -219,8 +333,8 @@ async function search() {
             // Examine and merge lyrics matches
             if (resultsLyrics.length > 0) {
                 if (resultsCompiled.length > 0) {
-                    resultsLyrics.forEach( (newhit) => {
-                        if (!mergeHit(resultsCompiled, newhit)) {
+                    resultsLyrics.forEach((newhit) => {
+                        if (!mergeLunrHit(resultsCompiled, newhit)) {
                             // Unique hit for this index
                             resultsCompiled.push(newhit);
                         }
@@ -235,13 +349,13 @@ async function search() {
         if (resultsCompiled.length > 0) {
             loadingtext.hide();
             // Sort combined results by score.
-            resultsCompiled.sort(function(a, b) {
+            resultsCompiled.sort(function (a, b) {
                 // Score, descending
                 return b._score - a._score;
             });
             // Iterate through the results and write them to HTML
             var results = "<div class=\"result\">";
-            resultsCompiled.forEach( (x) => {
+            resultsCompiled.forEach((x) => {
                 // Look up title
                 let i = fullIndex.findIndex((hymn) => {
                     return hymn.ceNumber == x.ref;
@@ -249,7 +363,7 @@ async function search() {
 
                 // Format results
                 results += "<div><h3><a href=\"/hymn?number=" + x.ref + "\">";
-                results += x.ref + " &mdash; " + fullIndex[i].title  + "</a></h3>";
+                results += x.ref + " &mdash; " + fullIndex[i].title + "</a></h3>";
                 results += "<p>" + fullIndex[i].lyricsFirstLineBody + "</p>";
                 // Object.keys(x).forEach( (p) => {
                 //     results += "<p>" + (p + ": " + x[p]) + "</p>";
@@ -258,8 +372,6 @@ async function search() {
             });
             results += "</div>";
             resultsdiv.append(results);
-            // resultsdiv.append('<div class="result">' +
-            //         '<div><h3><a href="/hymn?number=' + number + '">' + number +' &mdash; ' + title + '</a></h3><p>' + firstline + '</p></div></div>');
         } else {
             noresultstext.show();
         }

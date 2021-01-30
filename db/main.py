@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import string
+import collections
 import os
 from subprocess import Popen, PIPE, STDOUT
 printable = set(string.printable)
@@ -91,7 +92,7 @@ generate_lunr_index('lyricsFirstLineChorus', 'firstLineChorusIndex.json')
 
 hymn_numbers = []
 hymn_texts = []
-elunr_dict = {}
+texts_dict = {}
 
 # Read full text files
 for hymn_text_file in os.scandir(r'texts'):
@@ -109,7 +110,7 @@ for hymn_text_file in os.scandir(r'texts'):
             # Add text to data lists
             hymn_numbers.append(hymn_number)
             hymn_texts.append(hymn_text)
-            elunr_dict[hymn_number] = hymn_text
+            texts_dict[hymn_number] = hymn_text
 
             file.close()
 
@@ -126,7 +127,9 @@ json_buf = hymn_df.to_json(orient="records")
 write_lunr_index('hymnText', json_buf, 'lyricsIndex.json')
 
 # Add hymn text dictionary to dataframe
-osh_data = osh_data.assign(hymnText=hymn_texts)
+ordered_texts = collections.OrderedDict(sorted(texts_dict.items()))
+osh_data.sort_values(by='ceNumber', inplace=True)
+osh_data = osh_data.assign(hymnText=ordered_texts.values())
 json_buf = osh_data.to_json(orient="records")
 
 # Spawn subprocess to invoke elasticlunr via Node, create and serialize elasticlunr index

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy-js": "npm-run-all -p deploy-js:*",
+    "deploy-js:elunr": "aws s3 cp ./node_modules/elasticlunr/elasticlunr.js s3://osh-web-assets/js/ --acl public-read",
     "deploy-js:index": "aws s3 cp ./src/js/index.js s3://osh-web-assets/js/ --acl public-read",
     "deploy-js:search": "aws s3 cp ./src/js/search.js s3://osh-web-assets/js/ --acl public-read",
     "deploy-js:detail": "aws s3 cp ./src/js/detail.js s3://osh-web-assets/js/ --acl public-read",
