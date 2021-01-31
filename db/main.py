@@ -48,51 +48,7 @@ osh_data = osh_data.replace('\u2019', '', regex=True)
 osh_data = osh_data.replace('\u201c', '', regex=True)
 osh_data = osh_data.replace('\u201d', '', regex=True)
 
-
-def write_lunr_index(column_name, json_buffer, file_name):
-
-    # For debugging pipeline stages
-    # f = open("raw/pre" + file_name, "w")
-    # f.write(json_buffer)
-    # f.close()
-
-    # Spawn subprocess to invoke Lunr via Node, create and serialize Lunr index
-    p = Popen(["node", "build-lunr-index.js", column_name], stdout=PIPE, stdin=PIPE, stderr=PIPE)
-    serializable_index_bytes = ""
-    (serializable_index_bytes, error_output) = p.communicate(input=json_buffer.encode())
-    print("Errors: {}".format(error_output))
-    print("serializable_index_bytes length: " + str(len(serializable_index_bytes)))
-    serializable_index = json.loads(serializable_index_bytes)
-
-    # Write Lunr index
-    f = open("lunr/" + file_name, "w")
-    f.write(json.dumps(serializable_index))
-    f.close()
-
-
-# Create and serialize a Lunr index based on a column list subset.
-# Current implementation assumes 2 columns per index.
-# First column is of interest, second is hymn number.
-def generate_lunr_index(column, file_name):
-
-    # Create a subset of data specified by column list
-    index_df = pd.DataFrame(osh_data, columns=[column, 'ceNumber'])
-    buffer = index_df.to_json(orient="records")
-    write_lunr_index(column, buffer, file_name)
-
-
-# Title index
-generate_lunr_index('title', 'titleIndex.json')
-
-# First line of body index
-generate_lunr_index('lyricsFirstLineBody', 'firstLineBodyIndex.json')
-
-# First line of chorus index
-generate_lunr_index('lyricsFirstLineChorus', 'firstLineChorusIndex.json')
-
-hymn_numbers = []
-hymn_texts = []
-texts_dict = {}
+hymns = {}
 
 # Read full text files
 for hymn_text_file in os.scandir(r'texts'):
@@ -107,29 +63,15 @@ for hymn_text_file in os.scandir(r'texts'):
             # Remove any leading zeroes from file name to get hymn number
             hymn_number = int(os.path.splitext(os.path.basename(hymn_text_file))[0])
 
-            # Add text to data lists
-            hymn_numbers.append(hymn_number)
-            hymn_texts.append(hymn_text)
-            texts_dict[hymn_number] = hymn_text
+            # Add hymn text to collection
+            hymns[hymn_number] = hymn_text
 
             file.close()
 
-hymn_text_dict = {
-    'hymnText': hymn_texts,
-    'ceNumber': hymn_numbers
-}
-
-# Prepare a data frame with two columns: text and ceNumber
-hymn_df = pd.DataFrame(hymn_text_dict, columns=['hymnText', 'ceNumber'])
-
-# Generate and write a Lunr index from the data frame
-json_buf = hymn_df.to_json(orient="records")
-write_lunr_index('hymnText', json_buf, 'lyricsIndex.json')
-
-# Add hymn text dictionary to dataframe
-ordered_texts = collections.OrderedDict(sorted(texts_dict.items()))
+# Add hymn text collection to dataframe: sort both data sets, then combine
+ordered_hymns = collections.OrderedDict(sorted(hymns.items()))
 osh_data.sort_values(by='ceNumber', inplace=True)
-osh_data = osh_data.assign(hymnText=ordered_texts.values())
+osh_data = osh_data.assign(hymnText=ordered_hymns.values())
 json_buf = osh_data.to_json(orient="records")
 
 # Spawn subprocess to invoke elasticlunr via Node, create and serialize elasticlunr index
