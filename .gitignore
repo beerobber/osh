@@ -5,6 +5,9 @@
 # No compiled artifacts
 dist/
 
+# Omit hymn texts
+texts/
+
 # ignore node/grunt dependency directories
 node_modules/
 
