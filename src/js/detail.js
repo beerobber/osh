@@ -3,6 +3,13 @@
 // Chris Taylor
 
 let fullIndex;
+let videoIndex;
+
+// It is generally bad practice to put keys in source-controlled JavaScript.
+// Webflow does not currently support hiding secrets in environment variables, or through any other means.
+// This key is constrained to work against exactly one spreadsheet, read-only.
+// When Webflow improves secret management, we'll have a better approach.
+const sheetsURL = 'https://sheets.googleapis.com/v4/spreadsheets/14pDRUNx9TBZ7iqjZHELo3_ToKa4VNU9BNhLxRvJwln4/values/Sheet1!A1:B503?key=AIzaSyBmsF8a1Gfl4NTQtFvUsqtxpLOVWDszagI';
 
 $.extend({
     getUrlVars: function(){
@@ -25,6 +32,12 @@ async function fetchIndexData(url){
     let res = await fetch(url);
     if (res.ok) {
         fullIndex = await res.json();
+    }
+}
+async function fetchVideoData(url){
+    let res = await fetch(url);
+    if (res.ok) {
+        videoIndex = await res.json();
     }
 }
 
@@ -60,15 +73,22 @@ async function search() {
     let hymnNumber = $.getUrlVar('number');
 
     await fetchIndexData('https://osh-web-assets.s3.amazonaws.com/db/full/fullIndex.json');
+    await fetchVideoData(sheetsURL);
 
     if (hymnNumber) {
         // Look up hymn in index
         let i = fullIndex.findIndex((hymn) => {
             return hymn.ceNumber == hymnNumber;
         });
-        
+        let videoLink = 'No video available.';
+
+        // If a video exists, show the link
+        if (videoIndex.values[hymnNumber].length > 1) {
+            videoLink = "<a href=\"" + videoIndex.values[hymnNumber][1] + "\">View video</a>";
+        }
+
         if (i>=0) {
-            $('#hymnnumber').html(fullIndex[i]['ceNumber']);
+            $('#hymnnumber').html(hymnNumber);
             $('#hymntitle').html(fullIndex[i]['title']);
             $('#hymntune').html(fullIndex[i]['tune']);
             $('#hymnfirstlinebody').html(fullIndex[i]['lyricsFirstLineBody']);
@@ -81,6 +101,7 @@ async function search() {
             $('#hymnfirstappeared').html(fullIndex[i]['firstAppeared']);
             $('#hymnscripturereference').html(fullIndex[i]['scriptureReference']);
             $('#hymninscription').html(fullIndex[i]['inscription']);
+            $('#hymnvideo').html(videoLink);
         }
 
         // Show detail

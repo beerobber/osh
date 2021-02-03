@@ -43,6 +43,15 @@ The hymn text files were extracted directly from a print-ready format, and have 
 formatting and spelling oddities that might cause some search misses. 
 These will improve over time.  
 
+## Other Dependencies
+The project has non-breaking dependencies on some additional data sources.
+These are used for supplemental hymn details in detailed search results.
+See `src/js/detail.js` for specifics.
+* S3 bucket `osh-ce-practice-tracks` contains practice tracks named according to a specific convention.
+The hymn detail page pings these expected files and links to them if present.
+* A Google Sheets document lists videos of congregations singing, indexed by hymn number.
+The hymn detail page uses a Google Cloud Platform v4 API to fetch those details.
+
 ## Testing and Deploying
 The JavaScript files are designed to integrate with a Webflow-hosted site.
 Each has a corresponding HTML file in the parent directory to support local testing.
