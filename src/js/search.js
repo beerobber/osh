@@ -3,12 +3,9 @@
 // Chris Taylor
 
 var searchdiv = $("#osh-search-div")
-var lunrLyricsIndex;
-var lunrTitleIndex;
-var lunrFirstLineBodyIndex;
-var lunrFirstLineChorusIndex;
 var elunrFullIndex;
 var fullIndex;
+let resultsFound = 0;
 
 // Words to remove from searches
 var oshStopWords = [
@@ -109,6 +106,7 @@ function htmlContext(context) {
 function renderHtmlResults(searchHits, header) {
     // Present results
     if (searchHits.length > 0) {
+        resultsFound = 1;
         loadingtext.hide();
         // Sort combined results by score.
         searchHits.sort(function(a, b) {
@@ -138,8 +136,6 @@ function renderHtmlResults(searchHits, header) {
         });
         results += "</div>";
         resultsdiv.append(results);
-    } else {
-        noresultstext.show();
     }
 }
 
@@ -149,6 +145,7 @@ function isNumeric(n) {
 
 async function search() {
     // Clear results before searching
+    resultsFound = 0;
     noresultstext.hide();
     resultsdiv.empty();
     loadingtext.show();
@@ -177,6 +174,9 @@ async function search() {
             renderHtmlResults(runQuery(query, {lyricsFirstLineBody: {boost: 2}}), "First-Line Matches");
             renderHtmlResults(runQuery(query, {lyricsFirstLineChorus: {boost: 2}}), "First-Line-Chorus Matches");
             renderHtmlResults(runQuery(query, {hymnText: {boost: 1}}), "Full-Text Matches");
+            if (!resultsFound) {
+                noresultstext.show();
+            }
         }
     }
     loadingtext.hide();
