@@ -19,6 +19,7 @@
   "author": "Chris Taylor",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "lunr": "^2.3.9"
   },
   "devDependencies": {
