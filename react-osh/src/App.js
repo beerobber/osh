@@ -358,17 +358,17 @@ class App extends Component {
       })
     );
 
-    let search = (
-      <div className="search-bar-cont">
-        <div><hr></hr></div>
-        <input className="text-input" onChange={(event) => this.searchHymns(event.target.value)}></input>
-        <div><hr></hr></div>
-      </div>
-      );
+    // let search = (
+    //   <div className="search-bar-cont">
+    //     <div><hr></hr></div>
+    //     <input className="text-input" onChange={(event) => this.searchHymns(event.target.value)}></input>
+    //     <div><hr></hr></div>
+    //   </div>
+    //   );
 
       let currentDisplay = null;
       if(this.state.isIndex) currentDisplay = hymns;
-      if(this.state.isSearching) currentDisplay = searchedHymns;
+      //if(this.state.isSearching) currentDisplay = searchedHymns;
       if(this.state.isDetails) currentDisplay = detailHymn;
       
 
@@ -376,11 +376,11 @@ class App extends Component {
       <div className="center">
         <div className="nav-bar">
           <h1>OSH React</h1>
-          <div className="btns">
+          {/* <div className="btns">
             <button className="btn-1" onClick={() => this.displaySet(false, false, true)}>Search</button>
             <button className="btn-1" onClick={() => this.displaySet(false, true, false)}>Index</button>
-          </div>
-          {search}
+          </div> */}
+          {/*search*/}
         </div>
         <div>{currentDisplay}</div>
       </div>

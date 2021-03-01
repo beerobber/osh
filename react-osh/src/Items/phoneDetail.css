@@ -1,0 +1,29 @@
+@media only screen and (max-width: 768px) {
+
+    .center {
+        margin: auto;
+        max-width: 768px;
+    }
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        max-width: 768px;
+    }
+
+    /* NUMBER AND TITLE */
+    #num-and-title {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+
+    .number {
+        font-style: italic;
+        margin: 10px;
+        font-size: 2em;
+        border-bottom: 2px solid silver;
+    }
+
+}

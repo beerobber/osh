@@ -1,5 +1,6 @@
 import React from 'react';
 import './Detail.css';
+import './phoneDetail.css';
 
 const Details = (props) => {
     if(props.tune === "nan") {
