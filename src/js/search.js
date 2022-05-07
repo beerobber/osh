@@ -59,7 +59,7 @@ function generateSearchUI() {
     html += "<input ";
     html += "type = \"text\" ";
     html += "className = \"w-input\" ";
-    html += "autoFocus = \"true\" ";
+    html += "autoFocus = \"false\" ";
     html += "maxLength = \"256\" ";
     html += "name = \"search\" ";
     html += "data-name = \"search\" ";
@@ -181,3 +181,5 @@ async function search() {
     }
     loadingtext.hide();
 }
+
+window.addEventListener('load', function () {window.scrollTo(0, 0);})
