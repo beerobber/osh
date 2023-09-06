@@ -68,6 +68,42 @@ async function buildPracticeTrackLinks(hymnNum) {
     }
 }
 
+const checkUrl = async (url) => {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+}
+
+const calculateHymnNumber = async (hymnNumber) => {
+    const newUrl = `?number=${hymnNumber}`;
+
+    if (!await checkUrl(newUrl)) {
+        window.location.search = '?number=1';
+    } else {
+        window.location.search = newUrl;
+    }
+}
+
+function hydrateHymnalNavButtons() {
+    // Get current hymn number from URL
+    const url = new URL(window.location);
+    const currentHymn = parseInt(url.searchParams.get('number'));
+
+    // Get previous and next hymn numbers, wrapping around
+    const prevHymn = currentHymn - 1;
+    const nextHymn = currentHymn + 1;
+
+    // Add event listeners for prev/next buttons
+    // Calculation checks if hymn exists, and if not, wraps around
+    // Always to 1 though, so if you're on 1, doesn't wrap to end
+    document.getElementById('backward-button').addEventListener('click', () => {
+        calculateHymnNumber(prevHymn);
+    });
+
+    document.getElementById('forward-button').addEventListener('click', () => {
+        calculateHymnNumber(nextHymn);
+    });
+}
+
 async function search() {
     // Get hymn number from querystring
     let hymnNumber = $.getUrlVar('number');
@@ -106,6 +142,7 @@ async function search() {
 
         // Show detail
         $('#hymndetail').show();
+        hydrateHymnalNavButtons();
 
         // Add links to practice tracks, if any are available
         buildPracticeTrackLinks(hymnNumber);
@@ -113,3 +150,4 @@ async function search() {
 }
 
 search();
+hydrateHymnalNavButtons();

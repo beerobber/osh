@@ -3,11 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Comprehensive Index</title>
+    <style>
+        .backward-forward-nav-container {
+            display: grid;
+            grid-template-columns: auto auto;
+            width: min-content;
+            gap: 10px;
+        }
+
+        .backward-forward-nav-container button {
+            background-color: #572a28;
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .backward-forward-nav-container button:hover {
+            background-color: #7d3a37;
+        }
+    </style>
 </head>
 <body>
 <div id="indexsection" class="section">
     <div class="label cc-light index">Click Hymn number below to see more detail.<br/></div>
     <div class="container w-container">
+        <div class="backward-forward-nav-container">
+            <button id="backward-button">&lt;</button>
+            <button id="forward-button">&gt;</button>
+        </div>        
         <div class="w-layout-grid grid-2">
             <div class="indexheaderrow">Number</div>
             <div class="indexheaderrow">Title</div>
