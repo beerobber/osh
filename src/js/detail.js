@@ -4,6 +4,7 @@
 
 let fullIndex;
 let videoIndex;
+let buttonsMade = false;
 
 // It is generally bad practice to put keys in source-controlled JavaScript.
 // Webflow does not currently support hiding secrets in environment variables, or through any other means.
@@ -12,29 +13,28 @@ let videoIndex;
 const sheetsURL = 'https://sheets.googleapis.com/v4/spreadsheets/14pDRUNx9TBZ7iqjZHELo3_ToKa4VNU9BNhLxRvJwln4/values/Sheet1!A1:B503?key=AIzaSyBmsF8a1Gfl4NTQtFvUsqtxpLOVWDszagI';
 
 $.extend({
-    getUrlVars: function(){
+    getUrlVars: function () {
         var vars = [], hash;
         var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        for(var i = 0; i < hashes.length; i++)
-        {
+        for (var i = 0; i < hashes.length; i++) {
             hash = hashes[i].split('=');
             vars.push(hash[0]);
             vars[hash[0]] = hash[1];
         }
         return vars;
     },
-    getUrlVar: function(name){
+    getUrlVar: function (name) {
         return $.getUrlVars()[name];
     }
 });
 
-async function fetchIndexData(url){
+async function fetchIndexData(url) {
     let res = await fetch(url);
     if (res.ok) {
         fullIndex = await res.json();
     }
 }
-async function fetchVideoData(url){
+async function fetchVideoData(url) {
     let res = await fetch(url);
     if (res.ok) {
         videoIndex = await res.json();
@@ -48,17 +48,17 @@ async function buildPracticeTrackLinks(hymnNum) {
     let stringNum = hymnNum.toString();
     let hymnString = urlPrefix + "000".substring(0, 3 - stringNum.length) + stringNum;
     let trackLinks = [
-        {divid: "#hymnptsoprano", url: hymnString + "S" + suffix},
-        {divid: "#hymnptalto", url: hymnString + "A" + suffix},
-        {divid: "#hymnpttenor", url: hymnString + "T" + suffix},
-        {divid: "#hymnptbass", url: hymnString + "B" + suffix},
-        {divid: "#hymnptfull", url: hymnString + "F" + suffix}
+        { divid: "#hymnptsoprano", url: hymnString + "S" + suffix },
+        { divid: "#hymnptalto", url: hymnString + "A" + suffix },
+        { divid: "#hymnpttenor", url: hymnString + "T" + suffix },
+        { divid: "#hymnptbass", url: hymnString + "B" + suffix },
+        { divid: "#hymnptfull", url: hymnString + "F" + suffix }
     ];
     // Fetch only the headers of the practice track, just confirming it exists and is accessible
     for (let i in trackLinks) {
         let result = "Not yet available";
         // Appending a querystring parameter to URL to avoid using browser's cached req/res resources
-        fetch(trackLinks[i].url + "?notcached=1", {method: 'HEAD', mode: "cors"})
+        fetch(trackLinks[i].url + "?notcached=1", { method: 'HEAD', mode: "cors" })
             .then(response => {
                 if (response.ok) {
                     result = "<a href='" + trackLinks[i].url + "'>Play</a>";
@@ -68,39 +68,98 @@ async function buildPracticeTrackLinks(hymnNum) {
     }
 }
 
-const checkUrl = async (url) => {
-    const response = await fetch(url, { method: 'HEAD' });
-    return response.ok;
+function appendStyles() {
+    // Create a style element
+    var styleElement = document.createElement('style');
+    
+    // Define the styles
+    var styles = `
+    .backward-forward-nav-container {
+        display: grid;
+        grid-template-columns: auto auto;
+        width: min-content;
+        gap: 10px;
+    }
+
+    .backward-forward-nav-container button {
+        background-color: #572a28;
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .backward-forward-nav-container button:hover {
+        background-color: #7d3a37;
+    }
+    `;
+
+    // Add the styles to the style element
+    styleElement.innerHTML = styles;
+
+    // Append the style element to the head of the document
+    document.head.appendChild(styleElement);
 }
 
-const calculateHymnNumber = async (hymnNumber) => {
-    const newUrl = `?number=${hymnNumber}`;
+function appendNavigationButtons() {
+    if (buttonsMade) {
+        return;
+    }
+    buttonsMade = true;
+    appendStyles();
+    
+    // Create the outer div
+    var navContainer = document.createElement('div');
+    navContainer.className = 'backward-forward-nav-container';
 
-    if (!await checkUrl(newUrl)) {
-        window.location.search = '?number=1';
+    // Create the backward button
+    var backwardButton = document.createElement('button');
+    backwardButton.id = 'backward-button';
+    backwardButton.innerHTML = '&lt;';
+    navContainer.appendChild(backwardButton);
+
+    // Create the forward button
+    var forwardButton = document.createElement('button');
+    forwardButton.id = 'forward-button';
+    forwardButton.innerHTML = '&gt;';
+    navContainer.appendChild(forwardButton);
+
+    // Select the .container div and prepend the navContainer
+    var containerDiv = document.querySelector('.container.w-container');
+    if (containerDiv.firstChild) {
+        containerDiv.insertBefore(navContainer, containerDiv.firstChild);
     } else {
-        window.location.search = newUrl;
+        containerDiv.appendChild(navContainer);
     }
 }
 
+
 function hydrateHymnalNavButtons() {
+    appendNavigationButtons();
+
     // Get current hymn number from URL
     const url = new URL(window.location);
     const currentHymn = parseInt(url.searchParams.get('number'));
 
+    // Hardcode total number of hymns 
+    const totalHymns = 502;
+
     // Get previous and next hymn numbers, wrapping around
-    const prevHymn = currentHymn - 1;
-    const nextHymn = currentHymn + 1;
+    const prevHymn = currentHymn === 1 ? totalHymns : currentHymn - 1;
+    const nextHymn = currentHymn === totalHymns ? 1 : currentHymn + 1;
+
 
     // Add event listeners for prev/next buttons
-    // Calculation checks if hymn exists, and if not, wraps around
-    // Always to 1 though, so if you're on 1, doesn't wrap to end
     document.getElementById('backward-button').addEventListener('click', () => {
-        calculateHymnNumber(prevHymn);
+        window.location.search = `?number=${prevHymn}`;
     });
 
     document.getElementById('forward-button').addEventListener('click', () => {
-        calculateHymnNumber(nextHymn);
+        window.location.search = `?number=${nextHymn}`;
     });
 }
 
@@ -123,7 +182,7 @@ async function search() {
             videoLink = "<a href=\"" + videoIndex.values[hymnNumber][1] + "\">View video</a>";
         }
 
-        if (i>=0) {
+        if (i >= 0) {
             $('#hymnnumber').html(hymnNumber);
             $('#hymntitle').html(fullIndex[i]['title']);
             $('#hymntune').html(fullIndex[i]['tune']);
