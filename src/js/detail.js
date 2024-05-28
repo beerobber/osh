@@ -79,6 +79,7 @@ function appendStyles() {
         grid-template-columns: auto auto;
         width: min-content;
         gap: 10px;
+        padding-bottom: 10px;
     }
 
     .backward-forward-nav-container button {
